@@ -3,6 +3,8 @@ import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 import './Register.css'
 import axios from 'axios'
+import {Navigate} from 'react-router-dom';
+import Wrapper from '../components/Wrapper';
 
 const Register = () => {
 
@@ -10,6 +12,8 @@ const Register = () => {
   const [last_name, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorText, setErrorText] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   const submit = async (e: SyntheticEvent) => {
       e.preventDefault();
@@ -26,15 +30,25 @@ const Register = () => {
       const res = await axios.post('http://localhost:8080/auth/register', data);
 
       console.log(res);
+
+      if (res.status == 201){
+        setRedirect(true);
+      }
+      //Popravi v backendu
+      if(res.status !== 201){
+        setErrorText('Napaka v podatkih');
+        console.log(errorText)
+      }
+  }
+
+  if (redirect){
+    return <Navigate to='/Login' />
   }
 
   return (
     <>
-      <Nav />
-
-      <h1>Register</h1>
-      <main className="form-signin w-100 m-auto">
-        <form onSubmit={submit}>
+        <h2>{errorText}</h2>
+        <form onSubmit={submit} className="form-signin w-100 m-auto">
             <div className="form-floating">
               <input type="text" className="form-control" id="floatingFirstName" placeholder="First name" onChange={(e) => setFirstName(e.target.value)}/>
               <label htmlFor="floatingFirstName">First name</label>
@@ -54,9 +68,6 @@ const Register = () => {
 
             <button className="w-100 btn btn-lg btn-primary" type="submit">Register</button>
         </form>
-      </main>
-
-      <Footer />
     </>
   )
 
